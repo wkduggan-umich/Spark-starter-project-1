@@ -46,6 +46,19 @@ def processor(can_id):
         row = {'line_time': line_time, 'line_id': line_id, 'line_content': line_content}
         df = df._append(row, ignore_index=True)
         
+        '''  
+        # If this message's id == the desired id, then we break up the content into groupings following ver1.json 
+        if can_id == line_id:
+            
+            # Divide line_content into groupings then add them to the DataFrame (remember Endianness from slides)
+            df.append()
+
+            # Remember to keep track of time
+            if first_iter == True:
+                first_iter = False
+                first_time = line_time
+            times.append(line_time - first_time) 
+        '''
     print(df)
     return df
 
