@@ -4,6 +4,8 @@ import json
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import regex as re
+
 
 """
 Purpose: Opens the logfile
@@ -16,7 +18,7 @@ def processor(can_id):
 
     jsonfile = open("ver1.json")
     logfile = open("racedata.log")
-    df = pd.DataFrame()
+    df = pd.DataFrame(columns=['line_time', 'line_id', 'line_content'])
 
     """
     Hint you should break up each line of the log file into:
@@ -31,22 +33,20 @@ def processor(can_id):
     first_iter = True
     first_time = -1
     for line in logfile:
-        line_time = "Parse out the Unix time from the message"
-        line_id = "Parse this out of each message (convert it to an integer)"
-        line_content = "Parse this out of each message (then break it up)"
         
-        # If this message's id == the desired id, then we break up the content into groupings following ver1.json 
-        if can_id == line_id:
-            
-            # Divide line_content into groupings then add them to the DataFrame (remember Endianness from slides)
-            df.append()
+        line_time = line.split(' ')[0][1:-1]
+        # line_id = line.split(' ')[1]
+        end_content = line.split(' ')[2]
+        line_id = end_content.split('#')[0]
+        line_content = end_content.split('#')[1]
+        #num = line.split('#')[1]
+        #print(line_time, ",", line_id, ",", line_content)
 
-            # Remember to keep track of time
-            if first_iter == True:
-                first_iter = False
-                first_time = line_time
-            times.append(line_time - first_time) 
-    
+        # line_time = "Parse out the Unix time from the message" #line[0]?
+        row = {'line_time': line_time, 'line_id': line_id, 'line_content': line_content}
+        df = df._append(row, ignore_index=True)
+        
+    print(df)
     return df
 
 """
