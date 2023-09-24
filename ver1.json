@@ -1,0 +1,134 @@
+{
+    "Pack Current" : {
+            "bytes" : [0,2],
+            "signed" : true,
+            "scaling" : 0.1,
+            "id" : "0x001"
+        },
+    "Pack Voltage" : {
+            "bytes" : [2,4],
+            "signed" : false,
+            "scaling" : 0.1,
+            "id" : "0x001"
+        },
+    "Failsafe Status" : {
+            "bytes" : [4,6],
+            "signed" : false,
+            "scaling" : 1.0,
+            "id" : "0x001"
+        },
+    "Highest Pack Temperature": {
+        "bytes" : [6,7],
+        "signed" : true,
+        "scaling" : 1.0,
+        "id" : "0x001"
+    },
+    "Lowest Pack Temperature": {
+        "bytes" : [7,8],
+        "signed" : true,
+        "scaling" : 1.0,
+        "id" : "0x001"
+    },
+    "High Cell Voltage" : {
+            "bytes" : [0,2],
+            "signed" : true,
+            "scaling" : 0.0001,
+            "id" : "0x002"
+        },
+    "Low Cell Voltage" : {
+            "bytes" : [2,4],
+            "signed" : true,
+            "scaling" : 0.0001,
+            "id" : "0x002"
+        },
+    "Pack Discharge Current Limit" : {
+            "bytes" : [4,6],
+            "signed" : true,
+            "scaling" : 1.0,
+            "id" : "0x002"
+        },
+    "Pack Charge Current Limit": {
+        "bytes" : [6,8],
+        "signed" : true,
+        "scaling" : 1.0,
+        "id" : "0x002"
+    },
+    "High Cell Resistance" : {
+        "bytes" : [0,2],
+        "signed" : false,
+        "scaling" : 0.01,
+        "id" : "0x003"
+    },
+    "Low Cell Resistance" : {
+        "bytes" : [2,4],
+        "signed" : false,
+        "scaling" : 0.01,
+        "id" : "0x003"
+    },
+    "Input Power Supply Voltage" : {
+        "bytes" : [4,6],
+        "signed" : false,
+        "scaling" : 0.1,
+        "id" : "0x003"
+    },
+    "Relay Status" : {
+        "bytes" : [6,8],
+        "signed" : false,
+        "scaling" : 1.0,
+        "id" : "0x003"
+    },
+    "RPM" : {
+        "bytes" : [2,7],
+        "signed" : false,
+        "scaling" : 1.0,
+        "id" : "0x181"
+    },
+    "Status Word" : {
+        "bytes" : [0,2],
+        "signed" : false,
+        "scaling" :  1.0,
+        "id" : "0x181"
+    },
+    "Motor Temperature" : {
+        "bytes" : [0,1],
+        "signed" : false,
+        "scaling" : 1.0,
+        "id" : "0x281"
+    },
+    "Motor Controller Temperature" : {
+        "bytes" : [1,2],
+        "signed" : false,
+        "scaling" : 1.0,
+        "id" : "0x281"
+    },
+    "DCL Circuit Voltage" : {
+        "bytes" : [2,4],
+        "signed" : false,
+        "scaling" : 0.1,
+        "id" : "0x281"
+    },
+    "Warnings" : {
+        "bytes" : [4,6],
+        "signed" : false,
+        "scaling" : 1.0,
+        "id" : "0x281"
+    },
+    "Throttle Voltage" : {
+        "bytes" : [0,2],
+        "signed" : false,
+        "scaling" : 1.0,
+        "id" : "0x381"
+    },
+    "Aux Voltage" : {
+        "bytes" : [2,4],
+        "signed" : false,
+        "scaling" : 1.0,
+        "id" : "0x381"
+    },
+    "Break Voltage" : {
+        "bytes" : [4,6],
+        "signed" : false,
+        "scaling" : 1.0,
+        "id" : "0x381"
+    }
+}
