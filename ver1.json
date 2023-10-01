@@ -79,7 +79,7 @@
     },
     "RPM" : {
         "bytes" : [2,7],
-        "signed" : false,
+        "signed" : true,
         "scaling" : 1.0,
         "id" : "0x181"
     },

@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-"""
+""" 
 Purpose: Opens the logfile
 Input: The desired Can_ID as an integer in hex (0x181 or 0x001)
 Output: DataFrame (Pandas) containing all of the data in the requested id (ex. "0x181" and "0x001")
@@ -31,9 +31,9 @@ def processor(can_id):
     first_iter = True
     first_time = -1
     for line in logfile:
-        line_time = "Parse out the Unix time from the message"
-        line_id = "Parse this out of each message (convert it to an integer)"
-        line_content = "Parse this out of each message (then break it up)"
+        line_time = line[1:18]
+        line_id = line[25:28]
+        line_content = line[29:len(line)]
         
         # If this message's id == the desired id, then we break up the content into groupings following ver1.json 
         if can_id == line_id:
@@ -55,6 +55,10 @@ Input: DataFrame to be graphed
 Output: None
 """
 def grapher():
+    fig = make_subplots(rows=5, cols=1)
+    
+    
+
     return
 
 """
