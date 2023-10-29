@@ -4,6 +4,8 @@ import json
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import regex as re
+
 
 """ 
 Purpose: Opens the logfile
@@ -13,52 +15,81 @@ Output: DataFrame (Pandas) containing all of the data in the requested id (ex. "
         - Each column should be a different element  
 """
 def processor(can_id):
-
-    jsonfile = open("ver1.json")
-    logfile = open("racedata.log")
-    df = pd.DataFrame()
-
-    """
-    Hint you should break up each line of the log file into:
-     - Time 
-     - Can_Bus (not important)
-     - Can_id
-     - Content
+    with open("ver1.json") as f:
+        jsonfile = json.load(f)
     
-    """
+    with open("racedata_short.log") as f:
+        logfile = f.readlines()
+    
+    # Create dataframe
+    columns = ['line_time', 'line_id']
+    parsing_data = []
+    for measurement, info in jsonfile.items():
+        if info["id"] == hex(can_id):
+            formatted_measurement = '_'.join(measurement.lower().split(" "))
+            parsing_data.append({formatted_measurement: info})
+            columns.append(formatted_measurement)
+    df = pd.DataFrame(columns=columns)
 
-    times = []
-    first_iter = True
-    first_time = -1
-    for line in logfile:
-        line_time = line[1:18]
-        line_id = line[25:28]
-        line_content = line[29:len(line)]
+    endian = endianness(can_id)
+
+    print(endian)
+
+    # for line in logfile:
+
+    #     # Load individual values from log file
+    #     split_line = line.split(' ')
+    #     line_time = split_line[0]
+    #     # can_bus = line.split(' ')[1]
+    #     end_content = split_line[2].split('#')
+    #     line_id = int(end_content[0], 16)
+    #     line_content = end_content[1]
+    #     line_content = int(line_content, 16).to_bytes(int(len(line_content)/2)) # Convert to byte array
         
-        # If this message's id == the desired id, then we break up the content into groupings following ver1.json 
-        if can_id == line_id:
-            
-            # Divide line_content into groupings then add them to the DataFrame (remember Endianness from slides)
-            df.append()
+    #     # Parse line content based on JSON data
+    #     if can_id == line_id:
 
-            # Remember to keep track of time
-            if first_iter == True:
-                first_iter = False
-                first_time = line_time
-            times.append(line_time - first_time) 
+    #         row = pd.DataFrame({'time': line_time, 'can_id': hex(line_id)})
+            
+    #         for data in parsing_data:
+    #             for measurement, info in data.items():
+    #                 byte_index = info["bytes"]
+    #                 measurement_int = int.from_bytes(line_content[byte_index[0]:byte_index[1]], endian)
+    #                 row[measurement] = measurement_int
+            
+    #         df = pd.concat([row, df], axis=1)
+            
+    print(df.head)
+    return df    
+
+def endianness(can_id: int):
+    str_id = hex(can_id)[2:]    # Get rid of "0x" at the beginning
+    if str_id.endswith("81"):
+        return "little"
+    elif str_id.startswith("00"):
+        return "big"
     
-    return df
+    return None
 
 """
 Purpose: Graph every element in the desired id from your dataframe using Plotly
 Input: DataFrame to be graphed
 Output: None
 """
-def grapher():
-    fig = make_subplots(rows=5, cols=1)
+def grapher(can_id: int, dataframe: pd.DataFrame) -> None:
     
-    
+    df = processor(can_id)    
+    trace = go.Scatter(x=df['line_time'], y=df['line_content'], mode='markers', name='Graph')
 
+    layout = go.Layout(
+        title=str(can_id) + ' Graph',
+        xaxis=dict(title='Time'),
+        yaxis=dict(title='Y-Axis')
+    )
+
+    fig = go.Figure(data=[trace], layout=layout)
+    fig.show()
+    
     return
 
 """
@@ -92,7 +123,8 @@ if __name__ == "__main__":
    # Graph the data into multiple subplots using Plotly
    df181 = processor(0x181)
    df001 = processor(0x001)
-   grapher()
+   #grapher(0x001, df001)
+   #grapher(0x181, df181)
 
    # Part 2
    # In this part we will be making a visualization of a Battery Diagnostic test
