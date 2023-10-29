@@ -112,19 +112,42 @@ Purpose: Graph every element in the can_id 0x036, including a new trace for each
 Input: DataFrame to be graphed
 Output: None
 """
-def battery_grapher():
-    return
+def battery_grapher(df):
+    
+    fig = go.Figure()
 
+    fig = make_subplots(rows=1, cols=3, subplot_titles=['Instant Voltage', 'Instant Resistance', 'Operating Voltage'])
+
+    
+    fig.add_trace(go.Scatter(x=df['line_time'], y=df['instant_voltage'], mode='lines'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=df['line_time'], y=df['internal_resistance'], mode = 'lines'), row=1, col=2)
+    fig.add_trace(go.Scatter(x=df['line_time'], y=df['operating_voltage'],mode = 'lines'), row=1, col=3)
+
+
+    # Customize the layout and labels
+    fig.update_layout(title='Battery Diagnostic Data')
+    
+    # Set x-axis titles for each subplot
+    fig.update_xaxes(title_text='Time', row=1, col=1)
+    fig.update_xaxes(title_text='Time', row=1, col=2)
+    fig.update_xaxes(title_text='Time', row=1, col=3)
+
+    # Set y-axis titles for each subplot
+    fig.update_yaxes(title_text='Voltage', row=1, col=1)
+    fig.update_yaxes(title_text='Resistance', row=1, col=2)
+    fig.update_yaxes(title_text='Voltage', row=1, col=3)
+    
+    fig.show()
+    return
 
 if __name__ == "__main__":
    # Part 1
    # In this part we will be doing recreating what I showed you last work session with Pandas
    # Parse the data from the desired Can_ID and put them into respecitve DataFrames
    # Graph the data into multiple subplots using Plotly
-   df181 = processor(0x181)
-   df001 = processor(0x001)
-   #grapher(0x001, df001)
-   #grapher(0x181, df181)
+   #df181 = processor(0x181)
+   #df001 = processor(0x001)
+   #grapher()
 
    # Part 2
    # In this part we will be making a visualization of a Battery Diagnostic test
@@ -137,5 +160,15 @@ if __name__ == "__main__":
    # For our graph we will then seperate each batter_id into its own "trace" in plotly
    # In other words, each battery_id should be its own line on the graph (there should be around 16 lines/battery_ids total)
    # For roughly what the graph should look like, check the Part2_Example.png included in the zip file
-   battery_processer(0x036)
-   battery_grapher()
+   
+   #battery_processer(0x036)
+   data = {
+    'line_time': list(range(1, 11)),
+    'instant_voltage': [random.uniform(1, 5) for _ in range(10)],
+    'internal_resistance': [random.uniform(0.1, 1.0) for _ in range(10)],
+    'operating_voltage': [random.uniform(3, 4) for _ in range(10)]
+   }
+
+   df = pd.DataFrame(data)
+   battery_grapher(df)
+   
