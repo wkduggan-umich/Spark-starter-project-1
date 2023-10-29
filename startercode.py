@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import regex as re
+import random
 
 
 """ 
@@ -18,76 +19,79 @@ def processor(can_id):
     with open("ver1.json") as f:
         jsonfile = json.load(f)
     
-    with open("racedata_short.log") as f:
+    with open("racedata.log") as f:
         logfile = f.readlines()
     
     # Create dataframe
-    columns = ['line_time', 'line_id']
+
+    # This will store the column names to put into the data frame
+    columns = ['line_id']
+
+    # Holds the different devices to record
     parsing_data = []
     for measurement, info in jsonfile.items():
-        if info["id"] == hex(can_id):
+        if int(info["id"],base=16) == int(hex(can_id),base=16):
+            # Removes spaces of column name
             formatted_measurement = '_'.join(measurement.lower().split(" "))
             parsing_data.append({formatted_measurement: info})
             columns.append(formatted_measurement)
     df = pd.DataFrame(columns=columns)
 
     endian = endianness(can_id)
+    start_time = None
+    for line in logfile:
+        # Load individual values from log file
+        split_line = line.split(' ')
+        line_time = split_line[0].strip("()")
 
-    print(endian)
+        if start_time is None:
+            start_time = line_time
 
-    # for line in logfile:
-
-    #     # Load individual values from log file
-    #     split_line = line.split(' ')
-    #     line_time = split_line[0]
-    #     # can_bus = line.split(' ')[1]
-    #     end_content = split_line[2].split('#')
-    #     line_id = int(end_content[0], 16)
-    #     line_content = end_content[1]
-    #     line_content = int(line_content, 16).to_bytes(int(len(line_content)/2)) # Convert to byte array
+        end_content = split_line[2].split('#')
+        line_id = int(end_content[0], 16)
+        line_content = end_content[1]
+        line_content = int(line_content, 16).to_bytes(int(len(line_content)/2)) # Convert to byte array
         
-    #     # Parse line content based on JSON data
-    #     if can_id == line_id:
-
-    #         row = pd.DataFrame({'time': line_time, 'can_id': hex(line_id)})
-            
-    #         for data in parsing_data:
-    #             for measurement, info in data.items():
-    #                 byte_index = info["bytes"]
-    #                 measurement_int = int.from_bytes(line_content[byte_index[0]:byte_index[1]], endian)
-    #                 row[measurement] = measurement_int
-            
-    #         df = pd.concat([row, df], axis=1)
-            
+        # Parse line content based on JSON data
+        if can_id == line_id:
+            row = {"line_id": [line_id]} 
+            for data in parsing_data:
+                for measurement, info in data.items():
+                    byte_index = info["bytes"]
+                    measurement_int = int.from_bytes(line_content[byte_index[0]:byte_index[1]], endian) * info['scaling']
+                    row[measurement] = [measurement_int]
+                    if (measurement == "rpm" or measurement == "pack_current") and (measurement_int > 5000):
+                        row[measurement] = df.iloc[-1][measurement]
+                   
+            df_row = pd.DataFrame(row, index = [float(line_time) - float(start_time)])
+            df = pd.concat([df, df_row])
     print(df.head)
     return df    
 
 def endianness(can_id: int):
-    str_id = hex(can_id)[2:]    # Get rid of "0x" at the beginning
-    if str_id.endswith("81"):
+    if can_id >= 181:
         return "little"
-    elif str_id.startswith("00"):
-        return "big"
+    return "big"
     
-    return None
-
 """
 Purpose: Graph every element in the desired id from your dataframe using Plotly
 Input: DataFrame to be graphed
 Output: None
 """
-def grapher(can_id: int, dataframe: pd.DataFrame) -> None:
+def grapher(can_id: int, df: pd.DataFrame) -> None:
     
-    df = processor(can_id)    
-    trace = go.Scatter(x=df['line_time'], y=df['line_content'], mode='markers', name='Graph')
+    cols = df.columns[1:]
+    fig = make_subplots(rows=len(cols), cols=1)
+    
+    for i in range(len(cols)):
+        print(df.index)
+        print(df[cols[i]])
+        fig.add_trace(go.Scattergl(x=df.index, y=df[cols[i]], mode='lines', name=cols[i]), row=i + 1, col=1)
 
-    layout = go.Layout(
-        title=str(can_id) + ' Graph',
-        xaxis=dict(title='Time'),
-        yaxis=dict(title='Y-Axis')
-    )
-
-    fig = go.Figure(data=[trace], layout=layout)
+        layout = go.Layout(
+            title=str(cols[i]) + ' Graph',
+            xaxis=dict(title='Time')
+        )
     fig.show()
     
     return
@@ -145,9 +149,10 @@ if __name__ == "__main__":
    # In this part we will be doing recreating what I showed you last work session with Pandas
    # Parse the data from the desired Can_ID and put them into respecitve DataFrames
    # Graph the data into multiple subplots using Plotly
-   #df181 = processor(0x181)
-   #df001 = processor(0x001)
-   #grapher()
+   df181 = processor(0x181)
+   df001 = processor(0x001)
+   grapher(0x181,df181)
+   grapher(0x001, df001)
 
    # Part 2
    # In this part we will be making a visualization of a Battery Diagnostic test
@@ -161,14 +166,6 @@ if __name__ == "__main__":
    # In other words, each battery_id should be its own line on the graph (there should be around 16 lines/battery_ids total)
    # For roughly what the graph should look like, check the Part2_Example.png included in the zip file
    
-   #battery_processer(0x036)
-   data = {
-    'line_time': list(range(1, 11)),
-    'instant_voltage': [random.uniform(1, 5) for _ in range(10)],
-    'internal_resistance': [random.uniform(0.1, 1.0) for _ in range(10)],
-    'operating_voltage': [random.uniform(3, 4) for _ in range(10)]
-   }
-
-   df = pd.DataFrame(data)
-   battery_grapher(df)
+   df036 = battery_processer(0x036)
+   battery_grapher(df036)
    

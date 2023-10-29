@@ -130,5 +130,35 @@
         "signed" : false,
         "scaling" : 1.0,
         "id" : "0x381"
+    },
+    "Battery Id" : {
+        "bytes" : [0,1],
+        "signed" : false,
+        "scaling" : 1.0,
+        "id" : "0x036"
+    },
+    "Battery Cell Voltage" : {
+        "bytes" : [1,3],
+        "signed" : false,
+        "scaling" : 0.0001,
+        "id" : "0x036"
+    },
+    "Battery Internal Resistance" : {
+        "bytes" : [3,5],
+        "signed" : false,
+        "scaling" : 0.01,
+        "id" : "0x036"
+    },
+    "Battery Open Cell Voltage" : {
+        "bytes" : [5,7],
+        "signed" : false,
+        "scaling" : 0.0001,
+        "id" : "0x036"
+    },
+    "Battery Check Sum" : {
+        "bytes" : [7,8],
+        "signed" : false,
+        "scaling" : 1.0,
+        "id" : "0x036"
     }
 }
