@@ -19,7 +19,7 @@ def processor(can_id):
     with open("ver1.json") as f:
         jsonfile = json.load(f)
     
-    with open("racedata.log") as f:
+    with open("battery.log") as f:
         logfile = f.readlines()
     
     # Create dataframe
@@ -49,8 +49,8 @@ def processor(can_id):
 
         end_content = split_line[2].split('#')
         line_id = int(end_content[0], 16)
-        line_content = end_content[1]
-        line_content = int(line_content, 16).to_bytes(int(len(line_content)/2)) # Convert to byte array
+        line_content = end_content[1][0:16]
+        line_content = int(line_content, 16).to_bytes(8) # Convert to byte array
         
         # Parse line content based on JSON data
         if can_id == line_id:
@@ -109,6 +109,7 @@ Output: Df with the cols,
 """
 def battery_processer(can_id):
     logfile = open("battery.log")
+
     return
 
 """
@@ -117,42 +118,33 @@ Input: DataFrame to be graphed
 Output: None
 """
 def battery_grapher(df):
-    
-    fig = go.Figure()
+    ids = df.battery_id.unique()
+    cols = df.columns[2:]
+    fig = make_subplots(rows=1, cols=len(cols))
 
-    fig = make_subplots(rows=1, cols=3, subplot_titles=['Instant Voltage', 'Instant Resistance', 'Operating Voltage'])
+    for id in ids:
+        id_data_frame = df[df["battery_id"] == id]
+        
+        for i in range(len(cols)):
+            fig.add_trace(go.Scattergl(x=id_data_frame.index, y=id_data_frame[cols[i]], mode='lines', name=cols[i] + ' ' + str(int(id))), row=1, col= i + 1)
 
-    
-    fig.add_trace(go.Scatter(x=df['line_time'], y=df['instant_voltage'], mode='lines'), row=1, col=1)
-    fig.add_trace(go.Scatter(x=df['line_time'], y=df['internal_resistance'], mode = 'lines'), row=1, col=2)
-    fig.add_trace(go.Scatter(x=df['line_time'], y=df['operating_voltage'],mode = 'lines'), row=1, col=3)
+            layout = go.Layout(
+                title=str(cols[i]) + ' Graph',
+                xaxis=dict(title='Time')
+            )
 
-
-    # Customize the layout and labels
-    fig.update_layout(title='Battery Diagnostic Data')
-    
-    # Set x-axis titles for each subplot
-    fig.update_xaxes(title_text='Time', row=1, col=1)
-    fig.update_xaxes(title_text='Time', row=1, col=2)
-    fig.update_xaxes(title_text='Time', row=1, col=3)
-
-    # Set y-axis titles for each subplot
-    fig.update_yaxes(title_text='Voltage', row=1, col=1)
-    fig.update_yaxes(title_text='Resistance', row=1, col=2)
-    fig.update_yaxes(title_text='Voltage', row=1, col=3)
-    
     fig.show()
-    return
+    
 
 if __name__ == "__main__":
    # Part 1
    # In this part we will be doing recreating what I showed you last work session with Pandas
    # Parse the data from the desired Can_ID and put them into respecitve DataFrames
    # Graph the data into multiple subplots using Plotly
-   df181 = processor(0x181)
-   df001 = processor(0x001)
-   grapher(0x181,df181)
-   grapher(0x001, df001)
+#    df181 = processor(0x181)
+#    df001 = processor(0x001)
+#    grapher(0x181,df181)
+#    grapher(0x001, df001)
 
    # Part 2
    # In this part we will be making a visualization of a Battery Diagnostic test
@@ -166,6 +158,6 @@ if __name__ == "__main__":
    # In other words, each battery_id should be its own line on the graph (there should be around 16 lines/battery_ids total)
    # For roughly what the graph should look like, check the Part2_Example.png included in the zip file
    
-   df036 = battery_processer(0x036)
+   df036 = processor(0x036)
    battery_grapher(df036)
    
